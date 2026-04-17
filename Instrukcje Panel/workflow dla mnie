@@ -1,0 +1,58 @@
+Najwygodniejszy workflow:
+
+1. Edytujesz lokalnie
+
+W Antigravity / VS Code zmieniasz pliki w heniek-panel.
+
+Najczęściej będziemy dotykać:
+
+app/page.tsx
+app/api/status/route.ts
+app/api/logs/route.ts
+app/api/restart/route.ts
+app/api/soul/route.ts
+2. Testujesz lokalnie
+
+U siebie:
+
+npm run dev
+3. Commit + push
+git add .
+git commit -m "feat: logs api"
+git push origin main
+4. Na VPS pobierasz zmiany
+sudo -i
+cd /opt/apps/heniek-panel
+git pull
+npm run build
+5. Restartujesz panel na VPS
+
+Jeśli panel leci w zwykłym npm run start, to zatrzymujesz i uruchamiasz znowu.
+Jak za chwilę damy PM2, to będzie:
+
+pm2 restart al-panel
+Co dokładnie robimy dalej
+Opcja 1 — logi live
+
+Dodajemy plik:
+
+app/api/logs/route.ts
+
+I potem podpinamy go pod:
+
+app/page.tsx
+Opcja 2 — restart przyciskiem
+
+Dodajemy:
+
+app/api/restart/route.ts
+
+I przycisk w app/page.tsx
+
+Opcja 3 — SOUL editor
+
+Dodajemy:
+
+app/api/soul/route.ts
+
+I prosty textarea + save button w app/page.tsx

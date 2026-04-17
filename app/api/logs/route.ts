@@ -2,9 +2,9 @@ import { exec } from "child_process";
 
 function execCommand(command: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        exec(command, (error, stdout) => {
+        exec(command, (error, stdout, stderr) => {
             if (error) {
-                reject(error);
+                reject(new Error(stderr || error.message));
                 return;
             }
             resolve(stdout.trim());
@@ -14,12 +14,10 @@ function execCommand(command: string): Promise<string> {
 
 export async function GET(): Promise<Response> {
     try {
-        const status = await execCommand(
-            "docker ps --filter name=hermes-agent --format '{{.Status}}'"
-        );
+        const logs = await execCommand("docker logs --tail 50 hermes-agent");
 
         return Response.json({
-            status: status || "stopped",
+            logs,
         });
     } catch (error) {
         const message =
@@ -27,8 +25,8 @@ export async function GET(): Promise<Response> {
 
         return Response.json(
             {
-                status: "error",
-                message,
+                logs: "",
+                error: message,
             },
             { status: 500 }
         );
