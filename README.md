@@ -69,15 +69,41 @@ PANEL_AUTH_TOKEN=twoj-sekretny-token
 
 ## Deployment na VPS
 
-Przykładowo:
+Masz dwie wygodne opcje.
+
+### Opcja 1 — ręcznie
 
 ```bash
 sudo -i
 cd /opt/apps/heniek-panel
-git pull
+cp .env.example .env
+# uzupełnij .env swoimi wartościami
 npm install
 npm run build
-pm2 restart al-panel
+pm2 start ecosystem.config.cjs
 ```
+
+Przy kolejnych aktualizacjach:
+
+```bash
+cd /opt/apps/heniek-panel
+./scripts/deploy.sh
+```
+
+### Opcja 2 — szybki update
+
+Jeśli panel już działa i PM2 jest postawione:
+
+```bash
+sudo -i
+cd /opt/apps/heniek-panel
+./scripts/deploy.sh
+```
+
+Pliki pomocnicze w repo:
+
+- `ecosystem.config.cjs` — gotowy start dla PM2
+- `.env.example` — wzór konfiguracji
+- `scripts/deploy.sh` — pull + install + build + restart
 
 Jeśli nie używasz PM2, uruchamiasz ponownie proces `npm run start` po buildzie.

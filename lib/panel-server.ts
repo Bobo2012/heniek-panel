@@ -150,33 +150,48 @@ export async function getPanelStatus(): Promise<PanelStatus> {
 
 export async function getContainerLogs(tail = logTailDefault) {
   const safeTail = Number.isFinite(tail) ? Math.min(Math.max(tail, 20), 400) : logTailDefault;
-  const result = await run("docker", ["logs", "--tail", String(safeTail), containerName]);
-  return {
-    logs: result.stdout || result.stderr || "No logs available.",
-    tail: safeTail,
-    containerName,
-    checkedAt: new Date().toISOString(),
-  };
+
+  try {
+    const result = await run("docker", ["logs", "--tail", String(safeTail), containerName]);
+    return {
+      logs: result.stdout || result.stderr || "No logs available.",
+      tail: safeTail,
+      containerName,
+      checkedAt: new Date().toISOString(),
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Docker logs are unavailable.";
+    return {
+      logs: `Docker logs unavailable: ${message}`,
+      tail: safeTail,
+      containerName,
+      checkedAt: new Date().toISOString(),
+    };
+  }
 }
 
 export async function restartPanel() {
   const composeFileExists = await pathExists(composePath);
 
-  if (composeFileExists) {
-    await run("docker", ["compose", "-f", composePath, "restart", composeService]);
+  try {
+    if (composeFileExists) {
+      await run("docker", ["compose", "-f", composePath, "restart", composeService]);
+      return {
+        restarted: true,
+        method: "docker-compose",
+        message: `Restart command sent to service ${composeService}.`,
+      };
+    }
+
+    await run("docker", ["restart", containerName]);
     return {
       restarted: true,
-      method: "docker-compose",
-      message: `Restart command sent to service ${composeService}.`,
+      method: "docker",
+      message: `Restart command sent to container ${containerName}.`,
     };
+  } catch (error) {
+    throw new Error(error instanceof Error ? `Restart failed: ${error.message}` : "Restart failed.");
   }
-
-  await run("docker", ["restart", containerName]);
-  return {
-    restarted: true,
-    method: "docker",
-    message: `Restart command sent to container ${containerName}.`,
-  };
 }
 
 export async function readSoulFile() {

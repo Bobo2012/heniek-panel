@@ -267,7 +267,7 @@ export default function Home() {
                 AL Dashboard
               </h1>
               <p className="mt-4 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:text-base">
-                Gotowy panel do kontroli Hieniek / AL. Masz tu status kontenera, szybki restart,
+                Gotowy panel do kontroli AL. Masz tu status kontenera, szybki restart,
                 live logi i edycję pliku soul bez wchodzenia na serwer.
               </p>
             </div>
