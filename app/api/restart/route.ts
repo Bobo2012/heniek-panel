@@ -1,20 +1,20 @@
-import { getPanelStatus, isAuthorized, unauthorizedResponse } from "@/lib/panel-server";
+import { isAuthorized, restartPanel, unauthorizedResponse } from "@/lib/panel-server";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: Request): Promise<Response> {
+export async function POST(request: Request): Promise<Response> {
   if (!isAuthorized(request)) {
     return unauthorizedResponse();
   }
 
   try {
-    const status = await getPanelStatus();
-    return Response.json(status);
+    const result = await restartPanel();
+    return Response.json(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return Response.json(
       {
-        status: "degraded",
+        restarted: false,
         message,
       },
       { status: 500 }

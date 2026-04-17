@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Heniek / AL Dashboard
 
-## Getting Started
+Gotowy panel operatorski dla instancji AL / Heniek.
 
-First, run the development server:
+## Co potrafi
+
+- pokazuje status kontenera
+- pokazuje uptime i podstawową diagnostykę
+- wyświetla live logi Dockera
+- pozwala zrestartować usługę
+- pozwala czytać i edytować plik soul / personality
+- opcjonalnie chroni cały panel tokenem
+
+## Stack
+
+- Next.js 16
+- React 19
+- Tailwind CSS 4
+
+## Start lokalnie
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aplikacja będzie pod:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Build produkcyjny
 
-## Learn More
+```bash
+npm run build
+npm run start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Zmienne środowiskowe
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Możesz sterować panelem przez env:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+PANEL_TARGET_CONTAINER=hermes-agent
+PANEL_COMPOSE_PATH=/root/docker-compose.yml
+PANEL_COMPOSE_SERVICE=hermes
+PANEL_SOUL_PATH=/opt/data/AL-SOUL.md
+PANEL_LOG_TAIL=120
+PANEL_AUTH_TOKEN=twoj-sekretny-token
+```
 
-## Deploy on Vercel
+### Co znaczą
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `PANEL_TARGET_CONTAINER` — nazwa kontenera Dockera do statusu i logów
+- `PANEL_COMPOSE_PATH` — ścieżka do `docker-compose.yml`
+- `PANEL_COMPOSE_SERVICE` — nazwa usługi compose do restartu
+- `PANEL_SOUL_PATH` — plik personality / soul do edycji
+- `PANEL_LOG_TAIL` — domyślna liczba linii logów
+- `PANEL_AUTH_TOKEN` — jeśli ustawisz, panel wymaga tokenu w UI
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Workflow pracy
+
+1. Zmieniasz pliki lokalnie
+2. Odpalasz `npm run dev`
+3. Sprawdzasz `npm run lint` i `npm run build`
+4. Commit + push do repo
+5. Na VPS robisz pull i restart
+
+## Deployment na VPS
+
+Przykładowo:
+
+```bash
+sudo -i
+cd /opt/apps/heniek-panel
+git pull
+npm install
+npm run build
+pm2 restart al-panel
+```
+
+Jeśli nie używasz PM2, uruchamiasz ponownie proces `npm run start` po buildzie.
