@@ -339,6 +339,63 @@ export default function Home() {
     }
   }
 
+  if (authRequired) {
+    return (
+      <main className="panel-shell min-h-screen px-4 py-4 text-[var(--foreground)] sm:px-6 lg:px-8">
+        {toast && <div className="toast-panel">{toast}</div>}
+
+        <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-5xl items-center justify-center">
+          <section className="hero-panel w-full rounded-[2rem] p-6 sm:p-8 lg:p-10">
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-amber-100">
+                <span className="h-2.5 w-2.5 rounded-full bg-amber-300" />
+                Security · Locked
+              </div>
+
+              <h1 className="mt-5 text-[2.3rem] font-semibold tracking-[-0.06em] text-white sm:text-[3.6rem]">
+                Protected access only.
+              </h1>
+              <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:text-base">
+                Najpierw token. Dopiero po poprawnym odblokowaniu otworzy się cały dashboard główny.
+                Bez kart, bez logów, bez akcji pod spodem.
+              </p>
+            </div>
+
+            <div className="mx-auto mt-8 max-w-2xl security-panel rounded-[1.6rem] p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <input
+                  value={panelToken}
+                  onChange={(event) => setPanelToken(event.target.value)}
+                  className="security-input min-w-0 flex-1 rounded-2xl px-4 py-3 text-sm text-white outline-none"
+                  placeholder="Paste dashboard token"
+                  type="password"
+                />
+                <button
+                  onClick={savePanelToken}
+                  className="primary-button rounded-2xl px-4 py-3 text-sm font-semibold"
+                  type="button"
+                >
+                  Unlock dashboard
+                </button>
+              </div>
+
+              <div className="mt-4 grid gap-3 text-left sm:grid-cols-2">
+                <div className="info-block rounded-[1.2rem] p-4 text-sm text-[var(--muted)]">
+                  <p className="font-medium text-white">What happens next</p>
+                  <p className="mt-1">Po poprawnym tokenie otworzy się pełna strona główna z dash i akcjami.</p>
+                </div>
+                <div className="info-block rounded-[1.2rem] p-4 text-sm text-[var(--muted)]">
+                  <p className="font-medium text-white">Local device only</p>
+                  <p className="mt-1">Token zapisuje się lokalnie tylko w tej przeglądarce i można go potem wyczyścić.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="panel-shell min-h-screen px-4 pb-28 pt-4 text-[var(--foreground)] sm:px-6 sm:pb-8 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:gap-6">
