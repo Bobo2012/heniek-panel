@@ -9,6 +9,9 @@ Gotowy panel operatorski dla instancji AL / Heniek.
 - wyświetla live logi Dockera
 - pozwala zrestartować usługę
 - pozwala czytać i edytować plik soul / personality
+- ma premium mobile-first UI pod telefon i tablet
+- wymaga potwierdzenia dla restartu i zapisu SOUL
+- zapisuje activity log akcji operatora
 - opcjonalnie chroni cały panel tokenem
 
 ## Stack
@@ -47,6 +50,7 @@ PANEL_COMPOSE_PATH=/root/docker-compose.yml
 PANEL_COMPOSE_SERVICE=hermes
 PANEL_SOUL_PATH=/opt/prod/hermes-agent/data/SOUL.md
 PANEL_LOG_TAIL=120
+PANEL_AUDIT_LOG_PATH=/opt/prod/hermes-agent/data/panel-audit.log
 PANEL_AUTH_TOKEN=twoj-sekretny-token
 ```
 
@@ -57,6 +61,7 @@ PANEL_AUTH_TOKEN=twoj-sekretny-token
 - `PANEL_COMPOSE_SERVICE` — nazwa usługi compose do restartu
 - `PANEL_SOUL_PATH` — plik personality / soul do edycji
 - `PANEL_LOG_TAIL` — domyślna liczba linii logów
+- `PANEL_AUDIT_LOG_PATH` — plik activity logu panelu
 - `PANEL_AUTH_TOKEN` — jeśli ustawisz, panel wymaga tokenu w UI
 
 ## Workflow pracy

@@ -1,7 +1,8 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { access, mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { access, appendFile, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { constants } from "node:fs";
+import { randomUUID } from "node:crypto";
 
 const execFileAsync = promisify(execFile);
 
@@ -11,6 +12,7 @@ const composeService = process.env.PANEL_COMPOSE_SERVICE || "hermes";
 const soulPath = process.env.PANEL_SOUL_PATH || "/opt/prod/hermes-agent/data/SOUL.md";
 const logTailDefault = Number(process.env.PANEL_LOG_TAIL || 120);
 const authToken = process.env.PANEL_AUTH_TOKEN || "";
+const auditLogPath = process.env.PANEL_AUDIT_LOG_PATH || "/opt/prod/hermes-agent/data/panel-audit.log";
 
 export type PanelStatus = {
   status: "online" | "offline" | "degraded";
@@ -23,10 +25,21 @@ export type PanelStatus = {
   composeFileExists: boolean;
   soulPath: string;
   soulFileExists: boolean;
+  auditLogPath: string;
   checkedAt: string;
   host: string;
   errors: string[];
   authConfigured: boolean;
+};
+
+export type AuditEntry = {
+  id: string;
+  timestamp: string;
+  action: string;
+  status: "success" | "failure" | "warning" | "info";
+  detail: string;
+  ip: string;
+  userAgent: string;
 };
 
 async function run(command: string, args: string[]) {
@@ -50,6 +63,14 @@ async function pathExists(path: string) {
   }
 }
 
+function extractRequestMeta(request: Request) {
+  const forwarded = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "";
+  const ip = forwarded.split(",")[0]?.trim() || "unknown";
+  const userAgent = request.headers.get("user-agent") || "unknown";
+
+  return { ip, userAgent };
+}
+
 export function getPanelConfig() {
   return {
     containerName,
@@ -57,6 +78,7 @@ export function getPanelConfig() {
     composeService,
     soulPath,
     logTailDefault,
+    auditLogPath,
     authConfigured: Boolean(authToken),
   };
 }
@@ -77,6 +99,55 @@ export function unauthorizedResponse() {
     },
     { status: 401 }
   );
+}
+
+export async function appendAuditLog(
+  request: Request,
+  action: string,
+  status: AuditEntry["status"],
+  detail: string
+) {
+  const { ip, userAgent } = extractRequestMeta(request);
+  const slashIndex = auditLogPath.lastIndexOf("/");
+  const directory = slashIndex > 0 ? auditLogPath.slice(0, slashIndex) : ".";
+
+  await mkdir(directory, { recursive: true });
+  const entry: AuditEntry = {
+    id: randomUUID(),
+    timestamp: new Date().toISOString(),
+    action,
+    status,
+    detail,
+    ip,
+    userAgent,
+  };
+
+  await appendFile(auditLogPath, `${JSON.stringify(entry)}\n`, "utf8");
+  return entry;
+}
+
+export async function readAuditLog(limit = 30) {
+  const exists = await pathExists(auditLogPath);
+  if (!exists) {
+    return {
+      path: auditLogPath,
+      entries: [] as AuditEntry[],
+    };
+  }
+
+  const content = await readFile(auditLogPath, "utf8");
+  const entries = content
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .slice(-Math.max(1, Math.min(limit, 100)))
+    .reverse()
+    .map((line) => JSON.parse(line) as AuditEntry);
+
+  return {
+    path: auditLogPath,
+    entries,
+  };
 }
 
 export async function getPanelStatus(): Promise<PanelStatus> {
@@ -141,6 +212,7 @@ export async function getPanelStatus(): Promise<PanelStatus> {
     composeFileExists,
     soulPath,
     soulFileExists,
+    auditLogPath,
     checkedAt: new Date().toISOString(),
     host,
     errors,

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AL Dashboard",
-  description: "Premium control panel for Heniek / AL deployment health and operations.",
+  description: "Premium mobile-first control panel for AL operations, security, logs, and SOUL management.",
 };
 
 export default function RootLayout({
