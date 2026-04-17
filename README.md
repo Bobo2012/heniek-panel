@@ -45,7 +45,7 @@ Możesz sterować panelem przez env:
 PANEL_TARGET_CONTAINER=hermes-agent
 PANEL_COMPOSE_PATH=/root/docker-compose.yml
 PANEL_COMPOSE_SERVICE=hermes
-PANEL_SOUL_PATH=/opt/data/AL-SOUL.md
+PANEL_SOUL_PATH=/opt/prod/hermes-agent/data/SOUL.md
 PANEL_LOG_TAIL=120
 PANEL_AUTH_TOKEN=twoj-sekretny-token
 ```

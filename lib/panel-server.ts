@@ -8,7 +8,7 @@ const execFileAsync = promisify(execFile);
 const containerName = process.env.PANEL_TARGET_CONTAINER || "hermes-agent";
 const composePath = process.env.PANEL_COMPOSE_PATH || "/root/docker-compose.yml";
 const composeService = process.env.PANEL_COMPOSE_SERVICE || "hermes";
-const soulPath = process.env.PANEL_SOUL_PATH || "/opt/data/AL-SOUL.md";
+const soulPath = process.env.PANEL_SOUL_PATH || "/opt/prod/hermes-agent/data/SOUL.md";
 const logTailDefault = Number(process.env.PANEL_LOG_TAIL || 120);
 const authToken = process.env.PANEL_AUTH_TOKEN || "";
 
